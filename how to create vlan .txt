@@ -1,0 +1,33 @@
+how to create vlan 
+
+vlan 
+name 
+int vlan
+ip add()
+sw mo acc 
+sw acc vlan 
+
+VTP CONFIG
+
+vtp domain(name)
+vtp mode server
+sh vtp status
+
+how to know root sw
+
+show spanning-tree
+spanning-tree vlan <vlan-id> priority 0
+
+TRUNKING
+int fa
+sw mode trunk
+sw trunk allowed 
+
+
+IP DHCP POOL
+
+ip dhcp excluded-add 10.10.50.1 10.10.50.50
+ip dhcp pool vlan50
+network 10.10.50.0 255.255.255.0
+default-router 10.10.50.1
+dns-server 62.36.55.85

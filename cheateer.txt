@@ -1,0 +1,243 @@
+etherchannel
+
+int range fa0/1-2
+channel-group  mode active
+exit 
+int port-channel 1
+sw mo tr
+
+
+-- Basic Configuration -- 
+enable 
+conf t 
+hostname S 
+banner motd #UP# 
+user _ secret cisco
+enable secret cisco
+service password-encryption 
+ip domain-name CCNA.com 
+no ip domain-lookup
+  
+line con 0 
+password _
+logging synchronous 
+login 
+exit 
+
+crypto key generate rsa 
+1024
+exit 
+
+line vty 0 15
+password _
+exec-timeout 6
+trans input ssh
+
+ip default-gateway _
+
+ipv6 unicast-routing 
+
+
+show commands
+-- SHOW --
+do show run
+do show int 
+do show ip int br
+do show int g/f_ sw
+
+do show vlan br
+do show int tr
+do show mac add table
+
+do show ip ssh
+do show ip route
+do show ip protocol
+
+do show access-list
+do show run | include int | access
+do show cdp neighbors
+
+vlans conf
+-- VLAN -- 
+vlan 10 
+name V10 
+
+vlan 20 
+name V20 
+
+vlan 99 
+name V99 
+exit 
+  
+int range fa/g _ 
+sw mo acc 
+sw acc vlan 10 
+exit
+
+int range fa/g _
+sw mo acc
+sw acc 20
+exit
+  
+int range fa/g _ 
+sw mo acc 
+sw acc vlan 99 
+  
+int vlan 99 
+ip add 10.0.99.1 255.255.255.0 
+no sh
+  
+int g _ 
+sw mo tr
+sw tr native vlan 88 
+exit 
+
+int g _ .10
+encap dot1Q 10
+ip add 192.168.10.1 255.255.255.0
+
+int g _.20
+encap dot1Q 20
+ip add 192.168.20.1 255.255.255.0
+Router R1:
+
+interface g0/0/1.8
+encapsulation dot1q 8 native
+
+Switch S1:
+default interface f0/5
+interface f0/5
+switchport mode trunk
+switchport trunk native vlan 8
+switchport trunk allowed vlan 3,4,8,13
+
+interface f0/1
+switchport trunk allowed vlan 3,13
+switchport trunk native vlan 8
+
+S2:
+interface f0/1
+switchport trunk allowed vlan 3,13
+-- DHCP -- 
+ip dhcp excluded-add 20.0.0.1 20.0.0.10
+ip dhcp pool V20
+network 20.0.0.0 255.255.255.0
+default-router 20.0.0.1
+dns-server 8.8.8.8
+domain-name CCNA.com
+end
+
+ip dhcp excluded-add 192.168.10.1 192.168.10.10
+ip dhcp pool R1-LAN
+network 192.168.10.0 255.255.255.0
+default-router 192.168.10.1
+dns-server 192.168.20.254
+
+int g _
+ip helper-add 10.1.1.2
+
+ip helper-add 10.2.2.2
+
+tracert 172.16.0.10
+route 172.168.0.10
+
+int g _
+ip add dhcp
+no sh
+
+-- SSH -- 
+no ip domain-name
+ip domain-name CCNA.com
+crypto key generate rsa 1024
+user Student secret cisco
+ip ssh vers 2
+
+line vty 0 15
+trans input ssh
+login local
+
+-- STP --
+span vlan 10 prio 4096
+span vlan 20 prio 4096
+
+span pvst
+
+-- CHANNEL-- 
+int range f0/1-2
+channel-group 1 mode active
+exit
+int port-channel 1
+sw mo tr
+sw tr all vlan 30,60,99
+
+-- OSPF -- 
+do show ip protocol
+
+router ospf 1
+netw 10.10.0.0 0.0.255.255 area 0
+netw 192.168.0.0 0.0.0.255 area 0
+
+
+-- NAT/PAT --
+access-list 1 permit 172.16.0.0 0.0.255.255
+ip nat pool ANY_POOL_NAME 209.165.200.233 209.165.200.234 netmask 255.255.255.252
+ip nat inside source list 1 pool ANY_POOL_NAME overload
+
+interface s0/1/0
+ip nat outside
+
+interface g0/0/0
+ip nat inside
+
+interface g0/0/1
+ip nat inside
+
+-- PORT SECURITY --
+int f_
+sw mo acc 
+sw acc vlan 1
+sw port-security maxi 1
+sw port-security violation sh/restrict/protect
+sw port-security mac-add sticky
+
+spanning-tree vlan 30.60 priority 8192 / root primary
+
+int ra fa...
+sw port port-security 
+switchport port-security max 5
+switchport port-security violation restricted 
+switchport port-security mac sticky
+
+vtp mode server
+vtp domainname 
+sh vtp status
+
+access-list 1 permit[any network]
+ip nat inside source 1
+ip nat inside source list 1[interface]overload
+no sh
+int 
+ip nat outside
+ip nat inside x2
+
+show command
+show ip nat translation
+
+exit 
+int g01...
+sw mo tr
+end 
+write
+
+
+sh cdp neigh
+sh lldp neigh 
+sh cdp detail
+login into switch met ssh -l 
+
+
+
+
+exit
+end 
+do write
