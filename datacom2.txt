@@ -1,0 +1,84 @@
+	-= Switches Config =-
+enable
+conf t
+hostname S1
+banner motd #UAP#
+enable secret class
+service password-encryption
+line console 0
+password cisco
+login 
+logging synchronous
+exit
+	-= VLAN =-
+vlan 10
+name V10
+vlan 20
+name V20
+exit
+int range fa0/1-10
+sw mode access
+sw access vlan 10
+sw mode trunk
+exit
+int range fa0/11-19
+sw mode acces
+sw access vlan 20
+sw mode trunk
+exit
+int range fa0/22-24
+sw mode access
+sw access vlan 99
+int vlan 99
+ip address 10.0.99.1 255.255.255.0
+int range gig0/1-2
+sw mode trunk
+exit
+sw tr allowed vlan 1,2,3,4,5
+sw tr native vlan 8
+
+	-= DHCP =-
+enable
+ip dhcp excluded-address 10.0.20.1 10.0.20.10
+ip dhcp pool v20
+network 10.0.20.0 255.255.255.0
+default-router 10.0.200.1
+dns-server 209.165.200.2
+exit
+
+
+	-= SSH =-
+ip domain name ccna.com
+user cezar secret ccna
+crypto key generate rsa
+1024
+line vty 0 4
+transport input ssh
+exit
+line vty 0 15
+transport input ssh
+login local
+--------------------------------------
+[PC]ssh -1 admin 10.0.0.1
+[PC]password = admin
+	
+	-= STP =-
+enable
+conf t
+spanning-tree vlan 1 root primary / secondary
+
+	-= Channel =-
+int range fa0/1-2
+channel-group 1 mode active
+exit
+int port-channel 1
+switchport mode trunk
+switchport trunk allowed vlan 1,2,20
+
+	-= Helper Address =-
+ip helper-address 192.168.1.1
+
+	-= Protocol =-
+router ospf 1
+network 10.10.0.0 0.0.255.255 area 0
+do wr
