@@ -1,0 +1,77 @@
+Multilayer switch
+
+Vlan aanmaken
+
+enable 
+
+conifig t
+
+int vlan 10
+
+vlan 10
+
+ip address 192.168.10.1 255.255.255.0
+
+
+DHCP Pool in Multilayer switch
+
+
+enable 
+
+config t
+
+ip dhcp pool vlan10
+
+network 192.168.10.0 255.255.255.0
+
+default-router 192.168.10.1
+
+de gebroken lijnen op trunk 
+
+de switch op VTP client en multi layer op VTP server
+
+
+-- OSPF -- 
+ip routing op multi layer switch als je geen ip kan doen
+router ospf 1
+netw 10.10.10.0 0.0.0.3 area 0
+(/30)
+netw 192.168.10.0 0.0.0.255 area 0
+(/24) 
+
+
+-Vlan toevoegen aan poorten-:
+
+int range fa0/1 
+sw mo acc 
+sw acc vlan 10 
+exit
+
+
+-Trunk-
+
+om de ondergebroken lijn in trunk modus te zetten:
+
+int gig1/0/2
+switchport mode trunk
+
+
+-LLDP-
+
+Je begint eerst in de switch die aan de cluster is verbonden.
+
+Show lldp neighbors            (hier zie je de namen van de apparaten om je heen) 
+
+Show lldp neighbors details    (hier zie je welke apparaten er zijn en zie je ook bandbreedte (mbps))
+
+show cdp neighbors detail      (dit doe je om de ips te zien van alle apparaten om je heen)
+
+-SSH-
+
+ssh -l (Username) 192.168.100.1   (dit doe je in CMD)
+
+om meer apparaten te zien doe je weer Show lldp neighbors 
+
+kijken naar capability zie je een R staan staat voor router
+
+daarna doe je weer Show lldp neighbors details
